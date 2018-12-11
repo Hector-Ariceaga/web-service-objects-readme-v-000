@@ -5,7 +5,7 @@ class FoursquareService
       req.params['client_secret'] = ENV['FOURSQUARE_SECRET']
       req.params['grant_type'] = 'authorization_code'
       req.params['redirect_uri'] = "http://localhost:3000/auth"
-      req.params['code'] = params[:code]
+      req.params['code'] = code
     end
 
     body = JSON.parse(resp.body)
@@ -14,9 +14,21 @@ class FoursquareService
 
   def friends(token)
     resp = Faraday.get("https://api.foursquare.com/v2/users/self/friends") do |req|
-      req.params['oauth_token'] = session[:token]
+      req.params['oauth_token'] = token
       req.params['v'] = '20160201'
     end
    JSON.parse(resp.body)["response"]["friends"]["items"]
+  end
+
+  def venueSearch(client_id, client_secret, zipcode)
+    @resp = Faraday.get 'https://api.foursquare.com/v2/venues/search' do |req|
+      req.params['client_id'] = client_id
+      req.params['client_secret'] = client_secret
+      req.params['v'] = '20160201'
+      req.params['near'] = zipcode
+      req.params['query'] = 'coffee shop'
+    end
+
+    body = JSON.parse(@resp.body)
   end
 end
